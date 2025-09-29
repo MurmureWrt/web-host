@@ -35,32 +35,8 @@ jobs:
           playwright install
 
       - name: 运行登录脚本
-        id: login_script
         env:
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           WEBHOST: ${{ secrets.WEBHOST }}
         run: |
           python login_script.py
-
-      - name: 获取当前时间和状态
-        run: |
-          # 获取当前时间
-          current_time=$(date)
-          
-          # 判断登录脚本是否成功
-          if [ "${{ steps.login_script.outcome }}" == "success" ]; then
-            echo "${current_time}: Success" > result.txt
-          else
-            echo "${current_time}: Failure" > result.txt
-          fi
-
-      - name: 保存结果到存储库
-        run: |
-          # 将 result.txt 保存到仓库中
-          mv result.txt ./result.txt
-          
-      - name: 上传结果文件
-        uses: actions/upload-artifact@latest
-        with:
-          name: login-result
-          path: result.txt
