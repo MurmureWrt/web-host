@@ -60,7 +60,7 @@ jobs:
           mv result.txt ./result.txt
           
       - name: 上传结果文件
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: login-result
           path: result.txt
