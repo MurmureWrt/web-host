@@ -16,6 +16,12 @@ jobs:
       - name: Checkout 仓库代码
         uses: actions/checkout@v2
 
+      - name: 记录开始时间
+        id: start_time
+        run: |
+          echo "START_TIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "START_TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+
       - name: 安装 Playwright 所需依赖
         run: |
           npx playwright install-deps
@@ -40,3 +46,32 @@ jobs:
           WEBHOST: ${{ secrets.WEBHOST }}
         run: |
           python login_script.py
+
+      - name: 记录结束时间并计算运行时长
+        id: end_time
+        run: |
+          echo "END_TIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "END_TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
+          DURATION=$(( $(date +%s) - ${{ env.START_TIMESTAMP }} ))
+          echo "DURATION=$DURATION" >> $GITHUB_ENV
+          echo "运行时间: $DURATION 秒"
+
+      - name: 更新运行时间记录到txt文件
+        run: |
+          # 创建或追加到运行时间记录文件
+          echo "======================================" >> runtime_log.txt
+          echo "工作流运行时间: ${{ env.START_TIME }} 至 ${{ env.END_TIME }}" >> runtime_log.txt
+          echo "总运行时长: ${{ env.DURATION }} 秒" >> runtime_log.txt
+          echo "触发方式: ${{ github.event_name }}" >> runtime_log.txt
+          echo "提交哈希: ${{ github.sha }}" >> runtime_log.txt
+          echo "======================================" >> runtime_log.txt
+
+      - name: 提交更新后的运行时间记录
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add runtime_log.txt
+          git commit -m "更新工作流运行时间记录: ${{ env.START_TIME }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
