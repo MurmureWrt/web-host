@@ -1,0 +1,28 @@
+name: Update README Every 10 Days
+
+on:
+  schedule:
+    - cron: '0 0 */10 * *'  # 每10天的00:00时触发
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Update README
+        run: |
+          echo "自动更新 README 文件 - $(date)" > README.md
+          git config --global user.name "Your Name"
+          git config --global user.email "your-email@example.com"
+          git add README.md
+          git commit -m "自动更新 README 信息"
+          git push
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
