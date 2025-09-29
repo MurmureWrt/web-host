@@ -40,18 +40,3 @@ jobs:
           WEBHOST: ${{ secrets.WEBHOST }}
         run: |
           python login_script.py
-
-      - name: 生成执行时间文件
-        run: |
-          # 获取当前时间
-          current_time=$(date)
-          # 在仓库主目录生成 result.txt 文件，包含执行时间
-          echo "Execution time: $current_time" > result.txt
-
-      - name: 提交更改
-        if: success()  # 如果前面的步骤成功
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "🔄 自动同步执行时间: ${{ github.sha }}"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-          file_pattern: "result.txt"  # 只提交 result.txt 文件
