@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   login:
     runs-on: ubuntu-latest
@@ -40,3 +43,19 @@ jobs:
           WEBHOST: ${{ secrets.WEBHOST }}
         run: |
           python login_script.py
+
+      - name: Update timestamp to keep workflow active
+        run: |
+          date > last_run_timestamp.txt
+          
+      - name: Commit and push timestamp
+        run: |
+          # 配置 git 用户信息
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # 添加文件变动并提交
+          git add last_run_timestamp.txt
+          # 使用 [skip ci] 可以防止此次提交触发其他工作流，避免无限循环
+          git commit -m "Automated timestamp update to keep workflow active [skip ci]"
+          # 推送到远程仓库
+          git push
